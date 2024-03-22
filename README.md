@@ -1,6 +1,6 @@
 # Arduino Space Invaders remote BLE
 ![logo](/images/SpaveInvaders.bmp?raw=true)
-## A gameplay mod for arduino Portenta H7 and HAT Expansion board with ILI9486 based 480x320 LCD
+## A gameplay mod for arduino Portenta H7 and HAT Expansion board with USB-C to HDMI hub and TFT Monitor
 ____
 
 ## About
