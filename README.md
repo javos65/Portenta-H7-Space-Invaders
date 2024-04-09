@@ -16,8 +16,8 @@ This mod was made by using Portenta H7 and HAT expansion board using HSMI over U
 ### Wiring
 
 Connect H7 to HAT expansion board (if you want DEbug over Serial3), add USB-C 2 HDMI hub
-*  Portenta Carrier:     Portenta Hat Carrier  SKU ASX00049 Barcode 7630049204041
-*  Portenta C33 board :  Portenta H7           SKU ABX00042 Barcode 7630049202252 
+*  Portenta Carrier :     Portenta Hat Carrier  SKU ASX00049 Barcode 7630049204041
+*  Portenta board :       Portenta H7           SKU ABX00042 Barcode 7630049202252 
 
 ___
 
