@@ -18,7 +18,7 @@
 
 #include "Level.h"
 #include "Screen.h"
-#include "SDebug.h"
+#include "DEBUGF.h"
 
 //Constructor / Destructor
 Level::Level(int difficulty, Control *C) : C(C) {
@@ -28,7 +28,6 @@ Level::Level(int difficulty, Control *C) : C(C) {
   this->aTimer =0;
   this->initPlayer(C); // init player once, no renewal
   for(int i = 0; i < MAXENEMY*MAXROWS; i++) {this->m_enemyArray[i] = new Enemy( 0,  0,  0, i);} // init all enemies once, set to inactive, no renewal
-  //Debug(" * Objects initialized: 1 Player"); Debug(MAXENEMY*MAXROWS);Debugln(" Enemies ");
 }
 
 Level::~Level() // destructir
@@ -83,7 +82,7 @@ void Level::renew(int difficulty, Control *C)
   this->aTimer =0;
 	this->setDifficulty(difficulty);
   this->m_player->renew();
-  Debug(" * Restart Level to difficulty #"); Debug(difficulty);
+  DEBUGF(" * Restart Level to difficulty # %i\n\r",difficulty);
 	switch(this->m_difficulty)
 	{
 			//easy difficulty
@@ -131,6 +130,7 @@ void Level::initPlayer( Control *C)
 void Level::initEnemies(int amount,int Orbit)
 {
 	this->enemyAmount = amount;
+  DEBUGF(" * Activating %i Enemies\n\r",this->enemyAmount);
 	for(int i = 0; i < this->enemyAmount; i++){
 		if(i < (MAXENEMY) )
 			this->m_enemyArray[i]->renew( ENEMYROWX+ i*ENEMYSX*3/2, ENEMYROWY + Orbit*ENEMYSY,  3,i);
@@ -142,7 +142,7 @@ void Level::initEnemies(int amount,int Orbit)
 			this->m_enemyArray[i]->renew( ENEMYROWX+ (i-3*MAXENEMY)*ENEMYSX*3/2 +ENEMYSX/2, ENEMYROWY + 12*ENEMYSY/3+ Orbit*ENEMYSY,  1,i);		
 	}
   for(int i = this->enemyAmount; i < MAXENEMY*MAXROWS; i++){ this->m_enemyArray[i]->renew(0,0,0,i);} // de-init other enemies
-  Debug(" * Activated "); Debug(this->enemyAmount);Debug(" Enemies ");
+  DEBUGF(" * Activated %i Enemies\n\r",this->enemyAmount);
 }
 
 //Functions
@@ -179,7 +179,7 @@ void Level::update()
         eby = this->m_enemyArray[i]->getBulletY();
 				//if enemy's bomb collides with the player
 				if ( eby> (BOMBEND-PLAYERSY-1) )
-         if(  this->m_player->collide(ebx, eby,BOMBX,BOMBY) )  this->playerAlive = false;
+         if(  this->m_player->collide(ebx, eby,Bomb.width,Bomb.height) )  this->playerAlive = false;
 				
 				//update the enemy for attack
         if ( (aTimer > ATTACKRATE) && (! this->m_enemyArray[i]->getAttack()) )
@@ -197,11 +197,10 @@ void Level::update()
 
 void Level::render()
 {
-	this->m_player->render();
-	
-	for(int i = 0; i < this->enemyAmount; i++){
-		if(!this->m_enemyArray[i]->getAlive() )
-			continue;
-		this->m_enemyArray[i]->render();
-	}
+
+	for(int i = 0; i < this->enemyAmount; i++)
+      {
+  		if( this->m_enemyArray[i]->getAlive() ) this->m_enemyArray[i]->render();
+	    }
+  this->m_player->render();
 }

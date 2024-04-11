@@ -16,8 +16,8 @@
 ******************************************************************************/
 #include "Enemy.h"
 #include "Screen.h"
-#include "USBC_Canvas.h"      // Graph functions for H7 USB-C Video
-#include "SDebug.h"
+#include "H7Canvas.h"      // Graph functions for H7 USB-C Video
+#include "DEBUGF.h"
 
 //constructor 
 Enemy::Enemy(int x, int y, int Ti, int ID)  {
@@ -103,20 +103,19 @@ void Enemy::bomb(bool now, int speed)
       }
 		  this->dropBomb = true;this->bombexplode=0;
 		  timerb = random(0,  1000);
-      Debug("Enemy ");Debug(m_ID);Debug("/");Debug(type);Debugln(" starts bombing");
 	  }
   }	
 
 	if(dropBomb == true ) // track fallen bomb and draw bomb
 	{
-    Canvas_FillRect(m_bombx, m_bomby, BOMBX, BOMBY, BLACK); // remove old Bomb
+    //Canvas_FillRect(m_bombx, m_bomby, BOMBX, Bomb.height, BLACK); // remove old Bomb
     // FALLING BOMB
-		if( m_bomby < BOMBEND-BOMBY ){
+		if( m_bomby < BOMBEND-Bomb.height ){
         m_bomby += BOMBSPEED + speed ;                                      // update bomb positionsY
-        if (m_bomby >= BOMBEND-BOMBY) {m_bomby = BOMBEND-BOMBY+1;bombexplode=1;}       // check limit, initiate explode at ground level
+        if (m_bomby >= BOMBEND-Bomb.height) {m_bomby = BOMBEND-Bomb.height+1;bombexplode=1;}       // check limit, initiate explode at ground level
         m_bombx += sidewinder;                                              // update bomb positionsX
-        if (m_bombx < GAMEX+2 ||m_bombx > GAMEX+SCREENSX-2 ) sidewinder = -sidewinder;    // check side boundaries   
-        Canvas_DrawColors((int16_t)m_bombx,(int16_t)m_bomby,(int16_t) BOMBX, (int16_t) BOMBY,(uint16_t *) Bomb); // draw normal bombs
+        if (m_bombx < Bomb.width || m_bombx > (Sprite_width()-Bomb.width) ) sidewinder = -sidewinder;    // check side boundaries   
+        //Bomb.xpos=m_bombx;Bomb.ypos=m_bomby ;Sprite_DrawImage(Bomb); // draw normal bombs
         } // falling
 
     // EXPLODING BOMB
@@ -124,12 +123,10 @@ void Enemy::bomb(bool now, int speed)
           if ( bombexplode >2 ) { // end bomb
                 m_bombx = 0, m_bomby = 0;bombexplode=0;
 			          dropBomb = false; 
-                Debug(m_ID);Debug("/");Debug(type);Debugln(" bomb ended");
               }    
           else  {
               bombexplode++; 
-              Canvas_DrawColors((int16_t)m_bombx,(int16_t)m_bomby,(int16_t) BOMBX, (int16_t) BOMBY,(uint16_t *) BombE); // crashed bomb
-              Debug(m_ID);Debug("/");Debug(type);Debugln(" bomb exploding");
+              //BombE.xpos=m_bombx;BombE.ypos=m_bomby ;Sprite_DrawImage(BombE); // draw normal bombs
               }
           }     // exploding  
   }        
@@ -137,9 +134,6 @@ void Enemy::bomb(bool now, int speed)
 }
 
 void Enemy::update(){
-	randomSeed(m_x*(analogRead(0)/m_y) ); // generate random seeds
-	if(animationFrame == 5)	animationFrame = -1;
-	else animationFrame++;
 	
   if ( (this->twilight == true) && (this->dropBomb == false) && (this->exploded==true) ) this->alive = false; // mark finaly DEATH !! : no more rendering, no more collision, no more bombing
   else if ( !this->attack) {// normal behaviour
@@ -167,48 +161,51 @@ void Enemy::update(){
   else {        // attacking : bomb always, increase bomb speed
         bomb(true, 5);
         this->m_prevy= this->m_y;this->m_prevx= this->m_x;;
-        if ( (this->m_y < BOMBEND-3*ENEMYSY) ) {  this->m_y+=2*BOMBSPEED/3; } // mov down
-        if ( (this->m_x <= GAMEX)  ) {this->m_x = GAMEX ; xdirection = -xdirection;}  
-        if ( (this->m_x > (GAMEX+SCREENSX-ENEMYSX)) ) {this->m_x=GAMEX+SCREENSX-ENEMYSX ;xdirection = -xdirection;}
-        this->m_x+= (2*BOMBSPEED*xdirection); 
+        if ( this->m_y < BUNKERLIMIT ) {  this->m_y+=2*BOMBSPEED/3; } // mov down
+        if ( this->m_x <= ENEMYSX/2 ) {this->m_x = ENEMYSX/2 ; xdirection = -xdirection;}  
+        if ( this->m_x > (Sprite_width()-ENEMYSX) ) {this->m_x=Sprite_width()-ENEMYSX ;xdirection = -xdirection;}
+        this->m_x+= (3*BOMBSPEED*xdirection/2); 
       }       // end attacking    
 }
 
 void Enemy::render(){
 
-  if( (m_prevx != m_x)  || (m_prevy != m_y)){     // Clear old enemy, on old place if there was a change
-      Canvas_FillRect(m_prevx, m_prevy,ENEMYSX,ENEMYSY, BLACK);
-      this->m_prevy= this->m_y;this->m_prevx= this->m_x;;
+// render bomb
+if(dropBomb == true ){
+             if(bombexplode>0)  {BombE.xpos=m_bombx;BombE.ypos=m_bomby ;Sprite_DrawImage(BombE);} // draw exploding bomb
+             else {Bomb.xpos=m_bombx;Bomb.ypos=m_bomby ;Sprite_DrawImage(Bomb);} // draw normal bomb
       }
 
+//render invader
 if (explodingA>0 ) { 
       if (this->explodingA > 4) {
-        Canvas_FillRect(m_x, m_y,ENEMYSX,ENEMYSY, BLACK);
+        //Canvas_FillRect(m_x, m_y,ENEMYSX,ENEMYSY, BLACK);
         this->exploded = true; // final explosion animation
-        this->explodingA++; 
+        this->explodingA++;
       }
       else {
-      Canvas_DrawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) Iexplode); 
+      Iexplode.xpos= m_x;Iexplode.ypos=m_y;Sprite_DrawImage(Iexplode);  
       this->explodingA++; 
       }
   }
 else if(this->alive == true && this->twilight == false) { // only render when alive, but not in twilight
-			  if(animationFrame < 3 && animationFrame >= 0){
+        animationFrame++; if(animationFrame>=10) animationFrame=0;; // 10 animation frames, divided in 2 :
+			  if(animationFrame >= 0 && animationFrame <5 ){
          switch(this->type) {
-				    case 1 : Canvas_DrawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader1_1); ;break;
-				    case 2 : Canvas_DrawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader2_1); ;break;
-				    case 3 : Canvas_DrawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader3_1); ;break;
-            case 4 : Canvas_DrawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader4_1); ;break;
-            default : Canvas_DrawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader2_1); ;break;   
+				    case 1 : Invaders1_1.xpos= m_x;Invaders1_1.ypos=m_y;Sprite_DrawImage(Invaders1_1);   ;break;
+				    case 2 : Invaders2_1.xpos= m_x;Invaders2_1.ypos=m_y;Sprite_DrawImage(Invaders2_1);   ;break; 
+				    case 3 : Invaders3_1.xpos= m_x;Invaders3_1.ypos=m_y;Sprite_DrawImage(Invaders3_1);   ;break; 
+            case 4 : Invaders4_1.xpos= m_x;Invaders4_1.ypos=m_y;Sprite_DrawImage(Invaders4_1);   ;break; 
+            default :Invaders2_1.xpos= m_x;Invaders2_1.ypos=m_y;Sprite_DrawImage(Invaders2_1);   ;break;   
            }               
         }
-			  if(animationFrame < 6 && animationFrame >= 3){
+			  if(animationFrame >= 5 && animationFrame < 10){
           switch(this->type) {
-				    case 1 : Canvas_DrawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader1_2); ;break;
-				    case 2 : Canvas_DrawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader2_2); ;break;
-				    case 3 : Canvas_DrawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader3_2); ;break;
-				    case 4 : Canvas_DrawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader4_2); ;break;            
-            default : Canvas_DrawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader1_2); ;break;
+				    case 1 : Invaders1_2.xpos= m_x;Invaders1_2.ypos=m_y;Sprite_DrawImage(Invaders1_2);   ;break;
+				    case 2 : Invaders2_2.xpos= m_x;Invaders2_2.ypos=m_y;Sprite_DrawImage(Invaders2_2);   ;break; 
+				    case 3 : Invaders3_2.xpos= m_x;Invaders3_2.ypos=m_y;Sprite_DrawImage(Invaders3_2);   ;break; 
+            case 4 : Invaders4_2.xpos= m_x;Invaders4_2.ypos=m_y;Sprite_DrawImage(Invaders4_2);   ;break; 
+            default :Invaders2_2.xpos= m_x;Invaders2_2.ypos=m_y;Sprite_DrawImage(Invaders2_2);   ;break;   
             }  
 			  }
      }
@@ -246,4 +243,3 @@ void Enemy::setAttack(){
 bool Enemy::getAttack(){
 	return(this->attack);
 }
- 

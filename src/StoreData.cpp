@@ -10,7 +10,7 @@
 * Game data store / read functions based on LittleFile system in QSPI
 *
 ******************************************************************************/
-#include "Debug.h"
+#include "DEBUGF.h"
 #include "StoreData.h"
 
 /*
@@ -41,39 +41,39 @@
   
 // Mount QSPI and read directiry to check file structure /qspi/C33/highscore.txt
 int Mount_Qspi(){
-        Debugln(" * Mounting QSPI FLASH...");
+        DEBUGF(" * Mounting QSPI FLASH...");
         err =  fs.mount(&mbr);
         if (err) {
           err = fs.reformat(&mbr);
-          Debug(" *! No filesystem found, formatting error#0x");Debug(err,HEX);
+          DEBUGF(" *! No filesystem found, formatting error#%0.2x\n\r",err);
         }
       if (err) {
-        Debug(" *! Error mounting File system, error#0x");Debug(err,HEX);
+        DEBUGF(" *! Error mounting File system, error#%0.2x\n\r",err);
         while(1);
         }
 
   // Run Through Root Directory
   if ((dir = opendir(root_folder.c_str())) != NULL) {
     while ((ent = readdir (dir)) != NULL) {
-      if(ent->d_type == DT_REG) ; //Debug("- [File]: ");
+      if(ent->d_type == DT_REG) ; //DEBUGF("- [File]: ");
       else if(ent->d_type == DT_DIR) {
-        //Debug("- [Fold]: ");
+        //DEBUGF("- [Fold]: ");
         if(strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..")) {
           dir_list.push_back(ent->d_name);
         }
       }
-      //Debugln(ent->d_name);
+      //DEBUGF("%s",ent->d_name);
       dirIndex++;
     }
     closedir (dir); // moved th
   } 
   else {
     // Could not open directory
-    Debugln(" *! Error opening Qspi\n");
+    DEBUGF(" *! Error opening Qspi\n\r");
     while(1);
   }
   if(dirIndex == 0) {
-    Debugln(" *! Empty Qspi");
+    DEBUGF(" *! Empty Qspi\n\r");
   }
 
   // Check if our directory is there, if not , create it.
@@ -83,10 +83,10 @@ int Mount_Qspi(){
   }
       err = 0;
       if(!found_test_folder) {
-        Debugln(" * FOLDER NOT FOUND... creating folder"); 
+        DEBUGF(" * FOLDER NOT FOUND... creating folder\n\r"); 
         err = mkdir(folder_test_name.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
         if(err != 0) {
-            Debug(" *! FAILED folder creation with error#0x ");Debugln(err,HEX);
+            DEBUGF(" *! FAILED folder creation with error#%0.2x \n\r",err);
             }
       }
   return(err);
@@ -97,7 +97,7 @@ int Mount_Qspi(){
 int Delete_File()
 {
       if(remove(file_test_name.c_str()) == 0) {
-        Debugln(" *!FILE HAS BEEN DELETED!");
+        DEBUGF(" *!FILE HAS BEEN DELETED\n\r!");
         return(1);
       }
     else return(0);
@@ -125,24 +125,16 @@ uint8_t Read_Data(struct EEData *O)
     fseek(fp, 0L, SEEK_END);
     int size = ftell(fp);
     fseek(fp, 0L, SEEK_SET);  
-    Debug(" * Found file :size ");Debugln(size);
+    DEBUGF(" * Found file :size %i\n\r",size);
     fread(ptr, 1 , sizeof(EEData), fp);     fclose(fp); 
-    Debug(" * Data read from File system, with ID 0x");Debugln(O->identity,HEX);
+    DEBUGF(" * Data read from File system, with ID 0x%0.2x\n\r",O->identity);
     return(1);
   } // check file        
   else { 
-    Debugln(" * File Read Failed : No File system");
+    DEBUGF(" * File Read Failed : No File system\n\r");
     fclose(fp); 
     return(0);
     }         
-}
-
-// Print debug information of Credentaisl structure//
-uint8_t Debug_Data(struct EEData *O)
-{
-     Debug(" * Data:[");Debug(O->highlevel);Debug(",");Debug(O->highscore);
-     Debug("],[");Debug(O->time); Debug("], id=");Debug(O->identity);Debug(", count=");Debug(O->counter);;Debug(", stop=");Debugln(O->stop);
-     return(1);
 }
 
 // verify ID, verify FFS, Safe data, increase counter //
@@ -155,10 +147,10 @@ uint8_t Save_Data(struct EEData *O)
      O->counter++;
      uint8_t* ptr = (uint8_t*) O;       // make pointer to structure O
      fwrite(ptr, 1, sizeof(EEData), fp);  fclose(fp); 
-     Debug(" * Saved Object to File system with ID ");Debug(O->identity);Debug(", size ");Debug(sizeof(EEData));Debug(", filesize ");Debugln(Check_Filesize());
+     DEBUGF(" * Saved Object to File system with ID %0.2x, size %i, filesize %i\n\r",O->identity,sizeof(EEData),Check_Filesize());
      return(1);
   }
-  else Debugln(" *! File not open for writing");
+  else DEBUGF(" *! File not open for writing\n\r");
  }
 
 

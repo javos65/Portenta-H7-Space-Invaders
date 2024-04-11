@@ -15,9 +15,9 @@
 *
 *
 ******************************************************************************/
-#include "USBC_Canvas.h"      // Graph functions for H7 USB-C Video
+#include "H7Canvas.h"      // Graph functions for H7 USB-C Video
 #include "Control.h"           // key control interface by touch or BLE
-#include "SDebug.h"
+#include "DEBUGF.h"
 #include "Level.h"
 
 //This Game Engine based on object c++
@@ -27,7 +27,7 @@
 REDIRECT_STDOUT_TO(Serial3)  
 
 
-	void showScore(bool on);
+	void showScore();
 	void levelComplete();
 	void levelOver();
   void gameOver();
@@ -43,7 +43,7 @@ REDIRECT_STDOUT_TO(Serial3)
   int m_gamecounter=0;
 	int m_score;
   int m_kills;
-	int m_levelScore;
+	int m_levelScore=0;
   int m_levelKills;
 	int m_highScore;
   int m_highLevel;
@@ -64,12 +64,11 @@ void setup()
 {
    pinMode(LEDR, OUTPUT);pinMode(LEDB, OUTPUT);pinMode(LEDG, OUTPUT);
    digitalWrite(LEDR, HIGH); digitalWrite(LEDB, HIGH);  digitalWrite(LEDG, HIGH);    
-   DBSERIALPORT.begin(38400);          // JV needed for debug interface can 
-   Debugln("\n\n * Serial3 initialized");
+   DEBUGFinit(38400);          // JV needed for debug interface can 
    delay(5000); 
-   Canvas_Init();                 // Init USB-C Video, 720x480 pixels via DSi : enables Video functions
+   CanvasAll_Init();                 // Init USB-C Video, 720x480 pixels via DSi : enables Video functions
    initgraphics_control(); 
-   Debugln(" * Game Starting");
+   DEBUGF(" * Game Starting\n\r");
    
 }
 
@@ -80,16 +79,15 @@ m_level = new Level(0,m_C);        // setup first level - create just one level,
 while(1){
   firstscreen();                                                // Show Splash screen and build Game screen
   newgame();                                                    // Reset Game counters
-  showScore(true);                                  // Show score counters
-  Debug("\n * New Game #");Debug(m_gamecounter++);
+  showScore();                                              // Show score counters
+  DEBUGF("\n\r * New Game # %i\n\r",m_gamecounter++);
   digitalWrite(LEDR, HIGH);
-  Canvas_DrawFrame();
+  CanvasAll_DrawFrames(true);
   m_gameMillis = millis();                                      // init game timer
   m_level->renew(m_difficulty,m_C);                             // setup level
 	while(!m_gameOver){                                           // play one game
     update();
 		render();
-    Canvas_DrawFrame();
     }
   if (m_score > m_highScore) { handle_highscore(); }            // handle game over : check high score, save high score
   //delete m_level;
@@ -98,103 +96,92 @@ while(1){
 
 
 
-void showScore(bool on){
-  Canvas_DrawFrame();
-	Canvas_FillRect( GAMEX, BOMBEND+4, LCDWIDTH-GAMEX-10, 30, BLACK);
-  Printf_Canvas( GAMEX+10, BOMBEND+10,WHITE,4,"Level#%i:",m_difficulty); 
-  Printf_Canvas( GAMEX + SCREENSX/2+20, BOMBEND+10,WHITE,4,"Score:"); 
-  Canvas_FillRect( GAMEX, BOMBEND+1, SCREENSX, 3, CYAN);
-  Printf_Canvas( GAMEX + SCREENSX-MINIX*4, BOMBEND+23,ORANGE,1,"SHIPS"); 
-  for(int t =0 ; t<m_ships;t++) Canvas_DrawColors((int16_t)GAMEX + SCREENSX-MINIX*4 +t*(MINIX+8),(int16_t)BOMBEND+11,(int16_t) MINIX, (int16_t) MINIY,(uint16_t *) shipcount); 
-  if ( (BOMBEND-(m_levelKills+m_kills)) >0 ) Canvas_FillRect(GAMEX-6, BOMBEND-(m_levelKills+m_kills), 3, m_levelKills+m_kills, RED);
-   updateCounters();
+void showScore(){
+	Sprite_FillRect( Sprite_width()-120, BOMBEND+2, 100, Sprite_height()-BOMBEND-3, RED,ERASEMASK); // clear ship area
+  for(int t =0 ; t<m_ships;t++) { ship.xpos = Sprite_width()-80+t*(ship.width+8);ship.ypos= BOMBEND + 6;Sprite_DrawImage(ship); } // draw remaining ship
+  if ( (BOMBEND-(m_levelKills+m_kills)) >0 ) Sprite_FillRect(0, BOMBEND-1-(m_levelKills+m_kills), 3, m_levelKills+m_kills, RED,0xA0);
+  updateCounters();
 }
 
 // counters only
 void updateCounters(){
-  Canvas_FillRect( GAMEX+130, BOMBEND+10, 65, 30, BLACK);
-  Printf_Canvas( GAMEX+130, BOMBEND+10,WHITE,4,"%i",m_levelScore); 
-  Canvas_FillRect( GAMEX + SCREENSX/2+40 + 80, BOMBEND+10, 65, 30, BLACK);
-  Printf_Canvas( GAMEX + SCREENSX/2+40 + 80, BOMBEND+10,CYAN,4,"%i",m_score); 
-  Canvas_DrawFrame();
+  Sprite_FillRect( 0, BOMBEND+3, 300, Sprite_height()-BOMBEND-3,RED,ERASEMASK); // clear Score area
+  Printf_Sprite( 0,  0, YELLOW,2,"  \0"); 
+  Printf_Sprite( 255,  BOMBEND+2, YELLOW,2,"%i\0",m_score); 
+  Printf_Sprite( 100, BOMBEND+2,  YELLOW,2,"%i\0",m_levelScore); 
 }
 
 
 void levelComplete()
 {
-	Canvas_DrawColors((int16_t) GAMEX+SCREENSX/2-LOGOWIDTH/2,(int16_t)(GAMEY+SCREENSY/2)-20,(int16_t)LOGOWIDTH,(int16_t) LOGOHEIGHT, (uint16_t *)  LevelUp);
-  Printf_Canvas( (GAMEX+SCREENSX/2)-40, (GAMEY+SCREENSY/2)+40,ORANGE,3,"Press Joystick"); 
-  Printf_Canvas( (GAMEX+SCREENSX/2)-50, (GAMEY+SCREENSY/2)+60,ORANGE,3,"button to continue"); 
-  Canvas_DrawFrame();
-  Debugln(" * Level Complete");
+  LevelUp.xpos=Sprite_width()/2-LevelUp.width/2;LevelUp.ypos=Sprite_height()/2-20;Sprite_DrawImage(LevelUp);
+  Printf_Sprite( (Sprite_width()/2)-80, (Sprite_height()/2)+40,ORANGE,2,"Press Joystick"); 
+  Printf_Sprite( (Sprite_width()/2)-90, (Sprite_height()/2)+60,ORANGE,2,"button to continue"); 
+  CanvasAll_DrawFrames(true);
+  DEBUGF(" * Level Complete\n\r");
   m_C->clearKeys();
 
 	while ( m_C->getCS() != 1  && ( m_retimer!=0 && (millis()-m_retimer)<AUTORESTART )  ) {m_C->getKeys();;} // wait for key or timer
 
 		m_difficulty++;
-		Canvas_FillRect(GAMEX, GAMEY,LCDWIDTH-GAMEX-1,SCREENSY, BLACK); // clear players field
+		Sprite_ClearFrame(BLACK8888); // clear players field
     m_levelScore=0;m_levelKills=0;
     m_retimer=0;
     randomize();
 		m_level->renew(m_difficulty, m_C);
-    showScore(true);
+    showScore();
 }
 
 
 void levelOver()
 {
-	Canvas_DrawColors((int16_t) GAMEX+SCREENSX/2-LOGOWIDTH/2,(int16_t)(GAMEY+SCREENSY/2)-20,(int16_t)LOGOWIDTH,(int16_t) LOGOHEIGHT, (uint16_t *)  LevelOver);
-  Printf_Canvas( (GAMEX+SCREENSX/2)-40, (GAMEY+SCREENSY/2)+40,YELLOW,3,"Press Joystick"); 
-  Printf_Canvas( (GAMEX+SCREENSX/2)-60, (GAMEY+SCREENSY/2)+60,YELLOW,3,"button to try again"); 
-  Canvas_DrawFrame();
-  Debugln(" * Level Failed");
+  LevelOver.xpos=Sprite_width()/2-LevelOver.width/2;LevelOver.ypos=Sprite_height()/2-20;Sprite_DrawImage(LevelOver);
+  Printf_Sprite( (Sprite_width()/2)-80, (Sprite_height()/2)+40,YELLOW,2,"Press Joystick"); 
+  Printf_Sprite( (Sprite_width()/2)-100, (Sprite_height()/2)+60,YELLOW,2,"button to try again"); 
+  CanvasAll_DrawFrames(true);
+  DEBUGF(" * Level Failed\n\r");
 	m_C->clearKeys();
 
 	while ( m_C->getCS() != 1  && ( m_retimer!=0 && (millis()-m_retimer)<AUTORESTART )  ) {m_C->getKeys();} // wait for key or timer
 
-		Canvas_FillRect(GAMEX, GAMEY,LCDWIDTH-GAMEX-1,SCREENSY, BLACK); // clear players field
+		Sprite_ClearFrame(BLACK8888); // clear players field
     m_levelScore=0;m_levelKills=0;
     m_retimer=0;
     randomize();
   	m_level->renew(m_difficulty, m_C);
-    showScore(true);
+    showScore();
 }
 
 
 void gameOver()
 {
-	Canvas_DrawColors((int16_t) GAMEX+SCREENSX/2-LOGOWIDTH/2,(int16_t)(GAMEY+SCREENSY/2)-20,(int16_t)LOGOWIDTH,(int16_t) LOGOHEIGHT, (uint16_t *)  GameOver);
-  Printf_Canvas( (GAMEX+SCREENSX/2)-40, (GAMEY+SCREENSY/2)+40,YELLOW,3,"Press Joysticks"); 
-  Printf_Canvas( (GAMEX+SCREENSX/2)-35, (GAMEY+SCREENSY/2)+60,YELLOW,3,"for new Game"); 
-  Canvas_DrawFrame();
-  Debugln(" * Game Over");digitalWrite(LEDR, LOW);
+  GameOver.xpos=Sprite_width()/2-GameOver.width/2;GameOver.ypos=Sprite_height()/2-20;Sprite_DrawImage(GameOver);  
+  Printf_Sprite( (Sprite_width()/2)-80, (Sprite_height()/2)+40,YELLOW,2,"Press Joysticks"); 
+  Printf_Sprite( (Sprite_width()/2)-75, (Sprite_height()/2)+60,YELLOW,2,"for new Game"); 
+  CanvasAll_DrawFrames(true);
+  DEBUGF(" * Game Over\n\r");digitalWrite(LEDR, LOW);
   m_C->clearKeys();
 
 	while ( m_C->getCS() != 1  && ( m_retimer!=0 && (millis()-m_retimer)<AUTORESTART )  ) {m_C->getKeys();} // wait for key or timer
 
-		Canvas_FillRect(GAMEX, GAMEY,LCDWIDTH-GAMEX-1,SCREENSY, BLACK); // clear players field
+		Sprite_ClearFrame(BLACK8888); // clear players field
     m_levelScore=0;m_levelKills=0;
     m_retimer=0;
-    showScore(true);
+    showScore();
     m_gameOver = true; 
 }
 
 
 void update(){
-  // check BLE connectivity and set Icon
-  if ( m_C->getBLE() ) Canvas_DrawColors((int16_t) 40,(int16_t) 3*LOGOHEIGHT+20,(int16_t)ICONWIDTH,(int16_t) ICONHEIGHT, (uint16_t *)  BLE_on);
-  else 	               Canvas_DrawColors((int16_t) 40,(int16_t) 3*LOGOHEIGHT+20,(int16_t)ICONWIDTH,(int16_t) ICONHEIGHT, (uint16_t *)  BLE_off);
+  // check BLE connectivity and set Icon at bottom screen
+  if ( m_C->getBLE() ) {BLE_on.xpos = Sprite_x()/2-BLE_on.width/2 ;   BLE_on.ypos=Canvas_height()-2*BLE_on.height; Canvas_DrawImage(BLE_on);}
+  else 	               {BLE_off.xpos =Sprite_x()/2-BLE_off.width/2  ; BLE_off.ypos=Canvas_height()-2*BLE_off.height; Canvas_DrawImage(BLE_off);}
 
 	// update Level if game is not over
   if ( (!m_gameOver) && (m_level != null) ) {
       m_level->update();
-      // keep track of score on the screen
-      int sc = m_level->getScore();
-      if( m_levelScore != sc ) {	
-          m_levelKills = m_level->getKills();
-  	      m_levelScore = sc;
-          showScore(true);
-          }
+      m_levelKills = m_level->getKills();
+      m_levelScore = m_level->getScore()+9;
       } // if not game over
 }
 
@@ -202,8 +189,11 @@ void render(){
 int i,t;
 if( !m_gameOver && (m_level != null) )
   {
-	m_level->render();
 
+  Sprite_ClearFrame(BLACK8888); // clear Sprite area, build it up
+	m_level->render();            // render sprites enemy + playes + bombs + laser
+  showScore();                  // render score
+  CanvasAll_DrawFrames(true);   // send video
 
 	if(!m_level->getPlayerAlive() )       // Player died   
 	{
@@ -250,11 +240,10 @@ int sec = (int) ((m_gameMillis-(min*60*1000))/1000);
           m_highLevel=m_difficulty;
           m_highKills=m_kills;
           //Write_Highscore(m_highScore, m_highLevel,m_gameMillis,m_highKills);
-          Canvas_DrawFrame();
-          Canvas_DrawColors((int16_t) GAMEX+SCREENSX/2-SPAVEINVADERSX/2,(int16_t)(GAMEY+SCREENSY/2)-SPAVEINVADERSY,(int16_t)SPAVEINVADERSX,(int16_t) SPAVEINVADERSY, (uint16_t *)  SpaveInvaders);
-          Printf_Canvas(GAMEX + SCREENSX/2-80,(GAMEY+SCREENSY/2)+SPAVEINVADERSY/4 + 10,CYAN,4,"HighScore : %i",m_highScore); 
-          Printf_Canvas(GAMEX + SCREENSX/2-100,(GAMEY+SCREENSY/2)+SPAVEINVADERSY/4 + 35,CYAN,4,"%i Kills in %i:%i sec.",m_highKills,min,sec); 
-          Canvas_DrawFrame();
+          SpaceInvaders.xpos = Sprite_width()/2-SpaceInvaders.width/2;  SpaceInvaders.ypos = Sprite_height()/3-SpaceInvaders.height/2; Sprite_DrawImage(SpaceInvaders);   
+          Printf_Sprite(Sprite_width()/2-80,Sprite_height()/2 + 10,YELLOW,2,"HighScore : %i",m_highScore); 
+          Printf_Sprite(Sprite_width()/2-100,Sprite_height()/2 + 35,ORANGE,2,"%i Kills in %i:%i sec.",m_highKills,min,sec); 
+          CanvasAll_DrawFrames(true);
           delay(5000);
 }
 
@@ -264,7 +253,7 @@ void initgraphics_control(){
   m_C->init();
 
   // load high scores
-  m_highScore=10;
+  m_highScore=0;
   m_highLevel=1;
   m_highKills=8;
   //Read_Highscore(&m_highScore, &m_highLevel, &m_gameMillis,&m_highKills); // read Hisghcores from file
@@ -277,7 +266,7 @@ void newgame(){
   m_kills = 0;
 	m_currentMillis  = 0;
 	m_previousMillis = 0;
-	m_levelScore 	 = 0;	
+	m_levelScore 	 = 10;	
   m_levelKills = 0;
 	m_difficulty 	 = 1;
   m_retimer = 0;
@@ -292,19 +281,28 @@ void randomize()
 
 void firstscreen(){
 long t,tt=millis();
-  Canvas_FillScreen(BLACK);
-  Canvas_DrawColors((int16_t) (LCDWIDTH-SPAVEINVADERSX)/2,(int16_t)(LCDHEIGHT-SPAVEINVADERSY)/2,(int16_t)SPAVEINVADERSX,(int16_t) SPAVEINVADERSY,(uint16_t *) SpaveInvaders);      // Splash Screen
-  Canvas_DrawFrame();
-  delay(4000);
+  Canvas_ClearFrame(BLACK);
+  Sprite_ClearFrame(BLACK8888);
+  CanvasAll_DrawFrames(true);
+  SpaceInvaders.xpos = Canvas_width()/2-SpaceInvaders.width/2;  SpaceInvaders.ypos = Canvas_height()/2-SpaceInvaders.height/2; Canvas_DrawImage(SpaceInvaders);      // Splash Screen
+  CanvasAll_DrawFrames(true);
+  delay(5000);
    m_C->clearKeys();
 
 
-  Canvas_FillScreen(BLACK);
-  Canvas_DrawColors((int16_t) 5,(int16_t)LOGOHEIGHT,(int16_t)LOGOWIDTH,(int16_t) LOGOHEIGHT,(uint16_t *) STMicro);
-  Canvas_DrawColors((int16_t) 5,(int16_t)2*LOGOHEIGHT+5,(int16_t)LOGOWIDTH,(int16_t) LOGOHEIGHT,(uint16_t *) STMicro2);
-  Canvas_DrawColors((int16_t) 5,(int16_t)4*LOGOHEIGHT+25,(int16_t)LOGOWIDTH,(int16_t) LOGOHEIGHT,(uint16_t *) Arduino);
-  Canvas_FillRect(GAMEX-12, GAMEY, 3, SCREENSY+24 , CYAN);
-  Printf_Canvas(GAMEX+80,GAMEY/2+10,ORANGE,1,"HighScore at Level %i with %i points",m_highLevel,m_highScore); // print text on Canvas buffer, transparant (slower)
+  Canvas_ClearFrame(BLACK);
+  STMicro.xpos=Sprite_x()/2-STMicro.width/2 ;STMicro.ypos= STMicro.height*2;Canvas_DrawImage(STMicro);
+  STMicro2.xpos=Sprite_x()/2-STMicro2.width/2;STMicro2.ypos= STMicro2.height*3+5;Canvas_DrawImage(STMicro2);
+  Arduino.xpos=Sprite_x()/2-Arduino.width/2;Arduino.ypos= Arduino.height*4+10;Canvas_DrawImage(Arduino);
+  Splash.xpos=Sprite_x();Splash.ypos= Sprite_y()-3;Canvas_DrawImageR(Splash,Sprite_width(),Sprite_height()+30);
+  Canvas_FillRect(Sprite_x()-5, Sprite_y(), 3,Sprite_height()+20 , DARKCYAN, 0xFF);
+  Printf_Canvas(Sprite_x()+140,Sprite_y()/2+10,ORANGE,1,"HighScore at Level %i with %i points",m_highLevel,m_highScore); // print text on Canvas buffer, transparant (slower)
 
+  Canvas_FillRect( Sprite_x(), Sprite_y()+BOMBEND, Sprite_width(), 2, ORANGE,0xFF);                            // draw bomb end line
+  for(t=0;t<Sprite_width()/4;++t)  Canvas_FillRect( Sprite_x()+random(3,Sprite_width()-6), Sprite_y()+BOMBEND-1, random(1,3), 1, ORANGE,random(0x80,0xFF));   
+  Printf_Canvas( Sprite_x()+20,   Sprite_y()+BOMBEND+2,  WHITE,2,  "Level#%i:",m_difficulty);   // draw fixed text
+  Printf_Canvas( Sprite_x()+190, Sprite_y()+BOMBEND+2,  WHITE,2,  "Score:"); 
+  Printf_Canvas( Sprite_x()+Sprite_width()-120, Sprite_y()+BOMBEND+5,  ORANGE,1, "SHIPS"); 
+  CanvasAll_DrawFrames(true);delay(100); CanvasAll_DrawFrames(true);
 }
 

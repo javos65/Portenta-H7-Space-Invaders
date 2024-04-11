@@ -17,7 +17,7 @@
 
 #include "Player.h"
 #include "Screen.h"
-#include "USBC_Canvas.h"      // Graph functions for H7 USB-C Video
+#include "H7Canvas.h"      // Graph functions for H7 USB-C Video
 
 
 Player::Player( Control *C) : C(C) {
@@ -69,7 +69,7 @@ void Player::shoot(){
       exbulletx = bulletx; exbullety=bullety;
 			this->bulletShoot = true;
 		  }
-		else if(bullet2Shoot == false && bullety < (GAMEY+SCREENSY/2) ){ // second shot ! - yeah - only when first shot is half way
+		else if(bullet2Shoot == false && bullety<(Sprite_height()/2) ){ // second shot ! - yeah - only when first shot is half way
 			this->bullet2x = this->x+PLAYERSX/2;
 			this->bullet2y = this->y;
       exbullet2x = bullet2x; exbullet2y=bullet2y;
@@ -78,25 +78,13 @@ void Player::shoot(){
 	  }
 
 	if(bulletShoot == true){ // first bullet
-    Canvas_FillRect(this->bulletx, this->bullety, RAYX, RAYY, BLACK); // emove old ray
 		exbulletx = bulletx; exbullety=bullety; bullety-=LASERSPEED;		
-    if(bullety >= SKYLIMIT)
-            Canvas_DrawColors((int16_t)bulletx,(int16_t)bullety,(int16_t) RAYX, (int16_t) RAYY,(uint16_t *) Ray);
-		else
-		{
-			bulletShoot = false;
-		}
+    if(bullety < SKYLIMIT) bulletShoot = false;
 	}
 
 	if(bullet2Shoot == true){ // secondbullet
-    Canvas_FillRect(this->bullet2x, this->bullet2y, RAYX, RAYY, BLACK); // emove old ray
 		exbullet2x = bullet2x; exbullet2y=bullet2y; bullet2y -= LASERSPEED;	
-    if(bullet2y >= SKYLIMIT)
-      Canvas_DrawColors((int16_t)bullet2x,(int16_t)bullet2y,(int16_t) RAYX, (int16_t) RAYY,(uint16_t *) Ray);
-		else
-		{
-			bullet2Shoot = false;
-		}
+    if(bullet2y < SKYLIMIT) bullet2Shoot = false;
 	}
 
 }
@@ -105,14 +93,12 @@ void Player::shoot(){
 
 void Player::stopShoot()
 {
-  Canvas_FillRect(this->bulletx, this->bullety, RAYX, RAYY, BLACK); // emove old ray
   this->bulletx=this->x;this->bullety=this->y;
 	bulletShoot = false;
 }
 
 void Player::stopShoot2()
 {
-  Canvas_FillRect(this->bullet2x, this->bullet2y, RAYX, RAYY, BLACK); // emove old ray
 	this->bullet2x=this->x;this->bullet2y=this->y;
   bullet2Shoot = false;
 }
@@ -141,17 +127,15 @@ bool Player::collide(int x1, int y1, int bx,int by){
 		  (y1+by) > (y +2*PLAYERSY/3)  )
 	{
      this->x--;
-    for(int i = 0; i<18; ++i)  // make & shake explosion :)
+    for(int i = 0; i<12; ++i)  // make & shake explosion :)
         {
-        Canvas_FillRect(this->prevx, this->prevy,PLAYERSX,PLAYERSY, BLACK);
-        this->prevx = x;this->prevy = y;       // then update to new position
-        if(i%2) { x = x+3;   Canvas_DrawColors((int16_t)this->x,(int16_t)this->y,(int16_t) PLAYERSX, (int16_t) PLAYERSY,(uint16_t *) laserexplode); }  // EXPLODE if HIT}   
-        else    { x = x-3;   Canvas_DrawColors((int16_t)this->x,(int16_t)this->y,(int16_t) PLAYERSX, (int16_t) PLAYERSY,(uint16_t *) laserexplode2);} // EXPLODE if HIT }  
-        Canvas_DrawFrame();
+        Sprite_FillRect( this->x, this->y, Lexplode.width, Lexplode.height, RED,ERASEMASK); // clear ship area
+        if(i%2) { x = x+3; Lexplode.xpos=this->x;Lexplode.ypos=this->y;Sprite_DrawImage(Lexplode);} // EXPLODE if HIT}   
+        else    { x = x-3; Lexplode2.xpos=this->x;Lexplode2.ypos=this->y;Sprite_DrawImage(Lexplode2);} // EXPLODE if HIT }  
+        CanvasAll_DrawFrames(true);
         delay(50); // wait after collide
+        
         }
-
-
     this->alive = false;
     return true;
 	}
@@ -181,11 +165,9 @@ void Player::update(){
 
 void Player::render(){
  if (this->alive == true) {               // only render animation if alive, if not alive, explosion is already rendered
-  if( (prevx != x)  || (prevy != y)){     // Clear old laser, on old place if there was a change
-  	Canvas_FillRect(prevx, prevy,PLAYERSX,PLAYERSY, BLACK);
-    this->prevx = x;this->prevy = y;       // then update to new position
-    }
-    Canvas_DrawColors((int16_t)x,(int16_t)y,(int16_t) PLAYERSX, (int16_t) PLAYERSY,(uint16_t *) laser); 
+    Laser.xpos=x;Laser.ypos=y;Sprite_DrawImage(Laser);
+    if(bullet2Shoot == true) {Ray__.xpos=bullet2x;Ray__.ypos=bullet2y;Sprite_DrawImage(Ray__);}
+    if(bulletShoot == true) {Ray__.xpos=bulletx;Ray__.ypos=bullety;Sprite_DrawImage(Ray__);}
  }
  
 }
