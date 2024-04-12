@@ -15,10 +15,12 @@
 *
 *
 ******************************************************************************/
-#include "H7Canvas.h"      // Graph functions for H7 USB-C Video
-#include "Control.h"           // key control interface by touch or BLE
-#include "DEBUGF.h"
+#include "H7Canvas.h"     // Graph functions for H7 USB-C Video
+#include "Control.h"      // key control interface by touch or BLE
+#include "DEBUGF.h"       // Debug messages
 #include "Level.h"
+#include "Screen.h"
+#include "StoreData.h"    // Highscore storage on QSPi/ USB drive
 
 //This Game Engine based on object c++
 #define null 0
@@ -256,7 +258,8 @@ void initgraphics_control(){
   m_highScore=0;
   m_highLevel=1;
   m_highKills=8;
-  //Read_Highscore(&m_highScore, &m_highLevel, &m_gameMillis,&m_highKills); // read Hisghcores from file
+  InitStorage();
+  Read_Highscore(&m_highScore, &m_highLevel, &m_gameMillis,&m_highKills); // read Hisghcores from file
   randomize();
 }
 
@@ -291,9 +294,10 @@ long t,tt=millis();
 
 
   Canvas_ClearFrame(BLACK);
-  STMicro.xpos=Sprite_x()/2-STMicro.width/2 ;STMicro.ypos= STMicro.height*2;Canvas_DrawImage(STMicro);
-  STMicro2.xpos=Sprite_x()/2-STMicro2.width/2;STMicro2.ypos= STMicro2.height*3+5;Canvas_DrawImage(STMicro2);
-  Arduino.xpos=Sprite_x()/2-Arduino.width/2;Arduino.ypos= Arduino.height*4+10;Canvas_DrawImage(Arduino);
+  SpaceInvaders.xpos = 2;  SpaceInvaders.ypos = 10; Canvas_DrawImageR(SpaceInvaders, Sprite_x()-20,0);   
+  STMicro.xpos=Sprite_x()/2-STMicro.width/2 ;STMicro.ypos= STMicro.height*3;Canvas_DrawImage(STMicro);
+  STMicro2.xpos=Sprite_x()/2-STMicro2.width/2;STMicro2.ypos= STMicro2.height*4+5;Canvas_DrawImage(STMicro2);
+  Arduino.xpos=Sprite_x()/2-Arduino.width/2;Arduino.ypos= Arduino.height*5+5;Canvas_DrawImage(Arduino);
   Splash.xpos=Sprite_x();Splash.ypos= Sprite_y()-3;Canvas_DrawImageR(Splash,Sprite_width(),Sprite_height()+30);
   Canvas_FillRect(Sprite_x()-5, Sprite_y(), 3,Sprite_height()+20 , DARKCYAN, 0xFF);
   Printf_Canvas(Sprite_x()+140,Sprite_y()/2+10,ORANGE,1,"HighScore at Level %i with %i points",m_highLevel,m_highScore); // print text on Canvas buffer, transparant (slower)

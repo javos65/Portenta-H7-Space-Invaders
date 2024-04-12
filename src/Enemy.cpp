@@ -29,7 +29,7 @@ Enemy::Enemy(int x, int y, int Ti, int ID)  {
   twilight    = false; // twilight stage, when hit, but still exploding or falling bombs
   exploded    = false;
   explodingA    = 0;
-	timerb 			= random(550, 1500);
+	timerb 			= random(550, 1400);
   timerx 			= 0;
   timery 			= 0;
   type        = Ti; // type of invader 1 / 2 / 3 / 0= not active
@@ -57,7 +57,7 @@ void Enemy::renew(int xx, int yy, int Tii,int IDD)
   twilight    = false; // twilight stage, when hit, but still exploding or falling bombs
   exploded    = false;
   explodingA    = 0;
-	timerb 			= random(550, 1500);
+	timerb 			= random(550, 1400);
   timerx 			= 0;
   timery 			= 0;
   type        = Tii; // type of invader 1 / 2 / 3 / 0 = not active
@@ -91,7 +91,7 @@ void Enemy::bomb(bool now, int speed)
 {
   if (this->alive == true && this->twilight == false) {    // start drop bombs only when alive and not in twilight
 	  this->timerb += bombrate + this->type; if (now == true) this->timerb += 2000; 
-	  if( (this->timerb > 2000) && (dropBomb == false) ){	//new bomb only when timer is up and no other bomb was falling
+	  if( (this->timerb > 1800) && (dropBomb == false) ){	//new bomb only when timer is up and no other bomb was falling
 		  this->m_bombx = this->m_x + random(3, ENEMYSX-3);   ;
 		  this->m_bomby = this->m_y+ENEMYSY;    
       switch(this->type) {    

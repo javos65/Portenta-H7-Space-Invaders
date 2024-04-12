@@ -148,8 +148,8 @@ void Player::update(){
   this->shoot();
 	this->prevx = x;
 	this->prevy = y;
-	if(this->C->getCX()==1)	x += 4;
-	else if(this->C->getCX()==-1)	x -= 4;
+	if(this->C->getCX()==1)	x += PLAYERSPEED;
+	else if(this->C->getCX()==-1)	x -= PLAYERSPEED;
 
 	//if(this->C->getCY()==-1) y += 4;
 	//else if(this->C->getCY()==1) y -= 4;

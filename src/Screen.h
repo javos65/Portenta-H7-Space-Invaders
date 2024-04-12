@@ -49,6 +49,7 @@
 #define ATTACKRATE  499   // tick time for next attack            ! prime
 
 // Player
+#define PLAYERSPEED 6
 #define LASERSPEED 12
 #define SKYLIMIT  GAMEY              // the SKY
 #define PLAYERROWX  (SCREENSX/2)

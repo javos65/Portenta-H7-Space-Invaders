@@ -85,7 +85,7 @@ void Sprite_DrawImage565(void *image,uint16_t x, uint16_t y, uint16_t xw, uint16
 void Sprite_DrawImageAlpha( void* sprite, uint16_t x, uint16_t y,uint32_t xSize, uint32_t ySize,uint32_t colormode);
 void Sprite_DrawFont(void *pSrc, uint16_t x, uint16_t y,uint32_t xSize, uint32_t ySize, uint32_t fontmode, uint16_t color565);
 
-void Canvas_DrawImageR(G_image spriteimage,uint16_t rx,uint16_t ry);
+void Canvas_DrawImageR(G_image spriteimage,uint32_t rx,uint32_t ry);
 
 uint32_t rgb565to8888(uint16_t rgb565Pixel);
 uint16_t argb8888to565(uint32_t argb8888Pixel);

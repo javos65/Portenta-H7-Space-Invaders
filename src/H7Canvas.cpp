@@ -513,12 +513,20 @@ void Sprite_DrawImageAlpha( void* sprite, uint16_t x, uint16_t y,uint32_t xSize,
   } // right color mode?
 }
 
-void Canvas_DrawImageR(G_image spriteimage,uint16_t rx,uint16_t ry)
+void Canvas_DrawImageR(G_image spriteimage,uint32_t rx,uint32_t ry)
 {
 G_image Timage;
 uint32_t t,orgx = spriteimage.width;
 uint32_t u,orgy = spriteimage.height;
 //uint32_t * Dst = (uint32_t*) (ARGB8888Canvas + spriteimage.x + spriteimage.y*Sprite_width() ); // destination point
+
+if (rx==0 ||ry==0) {
+  if (rx==0 && ry==0) {rx=orgx;ry=orgy;} // if zero input -correct value
+  else {
+      if(rx==0) {rx=(orgx*ry)/orgy;} // resize rx to same size-relation
+      if(ry==0) {ry=(orgy*rx)/orgx;} // resize ry to same size-relation
+      }
+  }
 
 if(spriteimage.bpp == 16){
     uint16_t *TDst16 = (uint16_t*) ea_malloc(rx*ry*spriteimage.bpp/8);
