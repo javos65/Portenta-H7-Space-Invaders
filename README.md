@@ -1,5 +1,5 @@
 # Arduino Space Invaders remote BLE
-![logo](/images/SpaveInvaders.bmp?raw=true)
+![logo](/images/SpaceInvaders.bmp?raw=true)
 ## A gameplay mod for arduino Portenta H7 and HAT Expansion board with USB-C to HDMI hub and TFT Monitor
 ____
 
@@ -11,7 +11,7 @@ This is a gameplay for Space Invaders with control interface by adding ***BLE re
 
 This mod was made by using Portenta H7 and HAT expansion board using HSMI over USB-C<br>
 
-![logo](/images/SpaceInvaders.bmp?raw=true)
+![logo](/images/GameOver.bmp?raw=true)
 
 ### Wiring
 
