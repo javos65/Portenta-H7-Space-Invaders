@@ -35,6 +35,7 @@ Player::Player( Control *C) : C(C) {
   this->kills = 0;
 	this->explode = false;
 	this->alive = true;
+  this->animation=0;
  }
 
 Player::~Player(){
@@ -59,6 +60,7 @@ void Player :: renew()
   this->kills = 0;
 	this->explode = false;
 	this->alive = true;
+  this->animation=0;  
 }
 void Player::shoot(){
 	
@@ -165,7 +167,9 @@ void Player::update(){
 
 void Player::render(){
  if (this->alive == true) {               // only render animation if alive, if not alive, explosion is already rendered
-    Laser.xpos=x;Laser.ypos=y;Sprite_DrawImage(Laser);
+    animation++;if(animation>5) animation=0;
+    if (animation<3)  {Laser.xpos=x;Laser.ypos=y;Sprite_DrawImage(Laser);}
+        else {Laser2.xpos=x;Laser2.ypos=y;Sprite_DrawImage(Laser2);}
     if(bullet2Shoot == true) {Ray__.xpos=bullet2x;Ray__.ypos=bullet2y;Sprite_DrawImage(Ray__);}
     if(bulletShoot == true) {Ray__.xpos=bulletx;Ray__.ypos=bullety;Sprite_DrawImage(Ray__);}
  }

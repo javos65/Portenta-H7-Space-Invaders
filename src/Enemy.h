@@ -52,7 +52,7 @@ private:
 
 public:
 	// Constructor // Destructor
-	Enemy( int x, int y,int Ti,int ID);
+	Enemy( int x, int y,int Ti,int ID, int agressive);
 	virtual ~Enemy();
 	
 	//Getters
@@ -74,7 +74,7 @@ public:
 	void bomb(bool now, int speed);
 	void update();
 	void render();
-  void renew(int xx, int yy, int Tii, int IDD); // renew function, to avoid constant delete and generate new class -> memory leak!
+  void renew(int xx, int yy, int Tii, int IDD,int agressive); // renew function, to avoid constant delete and generate new class -> memory leak!
 };
 
 #endif // !ENEMY_H

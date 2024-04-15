@@ -27,7 +27,7 @@ Level::Level(int difficulty, Control *C) : C(C) {
 	this->playerAlive = true;
   this->aTimer =0;
   this->initPlayer(C); // init player once, no renewal
-  for(int i = 0; i < MAXENEMY*MAXROWS; i++) {this->m_enemyArray[i] = new Enemy( 0,  0,  0, i);} // init all enemies once, set to inactive, no renewal
+  for(int i = 0; i < MAXENEMY*MAXROWS; i++) {this->m_enemyArray[i] = new Enemy( 0,  0,  0, i,0);} // init all enemies once, set to inactive, no renewal
 }
 
 Level::~Level() // destructir
@@ -133,15 +133,15 @@ void Level::initEnemies(int amount,int Orbit)
   DEBUGF(" * Activating %i Enemies\n\r",this->enemyAmount);
 	for(int i = 0; i < this->enemyAmount; i++){
 		if(i < (MAXENEMY) )
-			this->m_enemyArray[i]->renew( ENEMYROWX+ i*ENEMYSX*3/2, ENEMYROWY + Orbit*ENEMYSY,  3,i);
+			this->m_enemyArray[i]->renew( ENEMYROWX+ i*ENEMYSX*3/2, ENEMYROWY + Orbit*ENEMYSY,  3,i,1);
 		else if(i>=MAXENEMY && i<(MAXENEMY*2))
-			this->m_enemyArray[i]->renew( ENEMYROWX+ (i-MAXENEMY)*ENEMYSX*3/2 +ENEMYSX/2, ENEMYROWY + 4*ENEMYSY/3 + Orbit*ENEMYSY,  1,i);
+			this->m_enemyArray[i]->renew( ENEMYROWX+ (i-MAXENEMY)*ENEMYSX*3/2 +ENEMYSX/2, ENEMYROWY + 4*ENEMYSY/3 + Orbit*ENEMYSY,  1,i,2);
 		else if(i>=(2*MAXENEMY) && i < (3*MAXENEMY))
-			this->m_enemyArray[i]->renew( ENEMYROWX+ (i-2*MAXENEMY)*ENEMYSX*3/2, ENEMYROWY + 8*ENEMYSY/3+ Orbit*ENEMYSY,  2,i);
+			this->m_enemyArray[i]->renew( ENEMYROWX+ (i-2*MAXENEMY)*ENEMYSX*3/2, ENEMYROWY + 8*ENEMYSY/3+ Orbit*ENEMYSY,  2,i,8);
 		else if(i>=(3*MAXENEMY) && i < (4*MAXENEMY))
-			this->m_enemyArray[i]->renew( ENEMYROWX+ (i-3*MAXENEMY)*ENEMYSX*3/2 +ENEMYSX/2, ENEMYROWY + 12*ENEMYSY/3+ Orbit*ENEMYSY,  1,i);		
+			this->m_enemyArray[i]->renew( ENEMYROWX+ (i-3*MAXENEMY)*ENEMYSX*3/2 +ENEMYSX/2, ENEMYROWY + 12*ENEMYSY/3+ Orbit*ENEMYSY,  1,i,12);		
 	}
-  for(int i = this->enemyAmount; i < MAXENEMY*MAXROWS; i++){ this->m_enemyArray[i]->renew(0,0,0,i);} // de-init other enemies
+  for(int i = this->enemyAmount; i < MAXENEMY*MAXROWS; i++){ this->m_enemyArray[i]->renew(0,0,0,i,0);} // de-init other enemies
   DEBUGF(" * Activated %i Enemies\n\r",this->enemyAmount);
 }
 

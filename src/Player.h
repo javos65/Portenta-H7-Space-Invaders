@@ -40,6 +40,7 @@ private:
 	int ships;
 	int score;
   int kills;
+  int animation;
   Control* C;
 	
 

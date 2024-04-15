@@ -117,8 +117,8 @@ void updateCounters(){
 void levelComplete()
 {
   LevelUp.xpos=Sprite_width()/2-LevelUp.width/2;LevelUp.ypos=Sprite_height()/2-20;Sprite_DrawImage(LevelUp);
-  Printf_Sprite( (Sprite_width()/2)-80, (Sprite_height()/2)+40,ORANGE,2,"Press Joystick"); 
-  Printf_Sprite( (Sprite_width()/2)-90, (Sprite_height()/2)+60,ORANGE,2,"button to continue"); 
+  Printf_Sprite( (Sprite_width()/2)-70, (Sprite_height()/2)+40,ORANGE,2,"Press Joystick"); 
+  Printf_Sprite( (Sprite_width()/2)-80, (Sprite_height()/2)+60,ORANGE,2,"button to continue"); 
   CanvasAll_DrawFrames(true);
   DEBUGF(" * Level Complete\n\r");
   m_C->clearKeys();
@@ -138,8 +138,8 @@ void levelComplete()
 void levelOver()
 {
   LevelOver.xpos=Sprite_width()/2-LevelOver.width/2;LevelOver.ypos=Sprite_height()/2-20;Sprite_DrawImage(LevelOver);
-  Printf_Sprite( (Sprite_width()/2)-80, (Sprite_height()/2)+40,YELLOW,2,"Press Joystick"); 
-  Printf_Sprite( (Sprite_width()/2)-100, (Sprite_height()/2)+60,YELLOW,2,"button to try again"); 
+  Printf_Sprite( (Sprite_width()/2)-70, (Sprite_height()/2)+40,YELLOW,2,"Press Joystick"); 
+  Printf_Sprite( (Sprite_width()/2)-90, (Sprite_height()/2)+60,YELLOW,2,"button to try again"); 
   CanvasAll_DrawFrames(true);
   DEBUGF(" * Level Failed\n\r");
 	m_C->clearKeys();
@@ -241,10 +241,11 @@ int sec = (int) ((m_gameMillis-(min*60*1000))/1000);
           m_highScore=m_score;
           m_highLevel=m_difficulty;
           m_highKills=m_kills;
-          //Write_Highscore(m_highScore, m_highLevel,m_gameMillis,m_highKills);
+          Write_Highscore(m_highScore, m_highLevel,m_gameMillis,m_highKills);
+          Sprite_ClearFrame(0x80FF5500);
           SpaceInvaders.xpos = Sprite_width()/2-SpaceInvaders.width/2;  SpaceInvaders.ypos = Sprite_height()/3-SpaceInvaders.height/2; Sprite_DrawImage(SpaceInvaders);   
           Printf_Sprite(Sprite_width()/2-80,Sprite_height()/2 + 10,YELLOW,2,"HighScore : %i",m_highScore); 
-          Printf_Sprite(Sprite_width()/2-100,Sprite_height()/2 + 35,ORANGE,2,"%i Kills in %i:%i sec.",m_highKills,min,sec); 
+          Printf_Sprite(Sprite_width()/2-100,Sprite_height()/2 + 35,CYAN,2,"%i Kills in %i:%i sec.",m_highKills,min,sec); 
           CanvasAll_DrawFrames(true);
           delay(5000);
 }
@@ -269,7 +270,7 @@ void newgame(){
   m_kills = 0;
 	m_currentMillis  = 0;
 	m_previousMillis = 0;
-	m_levelScore 	 = 10;	
+	m_levelScore 	 = 11;	
   m_levelKills = 0;
 	m_difficulty 	 = 1;
   m_retimer = 0;
@@ -294,14 +295,14 @@ long t,tt=millis();
 
 
   Canvas_ClearFrame(BLACK);
-  SpaceInvaders.xpos = 2;  SpaceInvaders.ypos = 10; Canvas_DrawImageR(SpaceInvaders, Sprite_x()-20,0);   
-  STMicro.xpos=Sprite_x()/2-STMicro.width/2 ;STMicro.ypos= STMicro.height*3;Canvas_DrawImage(STMicro);
-  STMicro2.xpos=Sprite_x()/2-STMicro2.width/2;STMicro2.ypos= STMicro2.height*4+5;Canvas_DrawImage(STMicro2);
-  Arduino.xpos=Sprite_x()/2-Arduino.width/2;Arduino.ypos= Arduino.height*5+5;Canvas_DrawImage(Arduino);
+  SpaceInvaders.xpos = 0;  SpaceInvaders.ypos =Sprite_y() ; Canvas_DrawImageR(SpaceInvaders, Sprite_x()-6,0);   
+  STMicro.xpos=Sprite_x()/2-STMicro.width/2 ;STMicro.ypos= Sprite_y()+STMicro.height*2;Canvas_DrawImage(STMicro);
+  STMicro2.xpos=Sprite_x()/2-STMicro2.width/2;STMicro2.ypos=Sprite_y()+STMicro2.height*3+5;Canvas_DrawImage(STMicro2);
+  Arduino.xpos=Sprite_x()/2-Arduino.width/2;Arduino.ypos= Sprite_y()+ Arduino.height*4+5;Canvas_DrawImage(Arduino);
   Splash.xpos=Sprite_x();Splash.ypos= Sprite_y()-3;Canvas_DrawImageR(Splash,Sprite_width(),Sprite_height()+30);
-  Canvas_FillRect(Sprite_x()-5, Sprite_y(), 3,Sprite_height()+20 , DARKCYAN, 0xFF);
   Printf_Canvas(Sprite_x()+140,Sprite_y()/2+10,ORANGE,1,"HighScore at Level %i with %i points",m_highLevel,m_highScore); // print text on Canvas buffer, transparant (slower)
 
+  Canvas_FillRect(Sprite_x()-5, Sprite_y()-20, 3,Sprite_height()+40 , DARKCYAN, 0xFF);
   Canvas_FillRect( Sprite_x(), Sprite_y()+BOMBEND, Sprite_width(), 2, ORANGE,0xFF);                            // draw bomb end line
   for(t=0;t<Sprite_width()/4;++t)  Canvas_FillRect( Sprite_x()+random(3,Sprite_width()-6), Sprite_y()+BOMBEND-1, random(1,3), 1, ORANGE,random(0x80,0xFF));   
   Printf_Canvas( Sprite_x()+20,   Sprite_y()+BOMBEND+2,  WHITE,2,  "Level#%i:",m_difficulty);   // draw fixed text

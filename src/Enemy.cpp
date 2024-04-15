@@ -20,16 +20,16 @@
 #include "DEBUGF.h"
 
 //constructor 
-Enemy::Enemy(int x, int y, int Ti, int ID)  {
+Enemy::Enemy(int x, int y, int Ti, int ID,int agressive)  {
 	m_x = x, m_y 	= y; 	//intialize position
   m_prevx=x, m_prevy=y;
 	m_bombx = x, m_bomby = y;
-	animationFrame 	= 0; 	//intialize frame of animation
+	animationFrame 	= random(0,5); 	//intialize frame of animation
 	alive 			= true;	//intialize life state - callable by Level()
   twilight    = false; // twilight stage, when hit, but still exploding or falling bombs
   exploded    = false;
   explodingA    = 0;
-	timerb 			= random(550, 1400);
+	timerb 			= random(450, 1200);
   timerx 			= 0;
   timery 			= 0;
   type        = Ti; // type of invader 1 / 2 / 3 / 0= not active
@@ -47,23 +47,23 @@ Enemy::~Enemy(){
 
 }
 
-void Enemy::renew(int xx, int yy, int Tii,int IDD)
+void Enemy::renew(int xx, int yy, int Tii,int IDD,int agressive)
 {
 	m_x = xx, m_y 	= yy; 	//intialize position
   m_prevx=xx, m_prevy=yy;
 	m_bombx = xx, m_bomby = yy;
-	animationFrame 	= 0; 	//intialize frame of animation
+	animationFrame 	= random(0,5); 	//intialize frame of animation
 	alive 			= true;	//intialize life state - callable by Level()
   twilight    = false; // twilight stage, when hit, but still exploding or falling bombs
   exploded    = false;
   explodingA    = 0;
-	timerb 			= random(550, 1400);
+	timerb 			= random(450, 1200);
   timerx 			= 0;
   timery 			= 0;
   type        = Tii; // type of invader 1 / 2 / 3 / 0 = not active
   shift       = 0; // shift
   sidewinder  = 0 ;
-  bombrate    = 1;
+  bombrate    = agressive; // 1-10, rate of bombing
   bombexplode = 0;
   dropBomb    = false;
   attack      = false;
@@ -91,7 +91,7 @@ void Enemy::bomb(bool now, int speed)
 {
   if (this->alive == true && this->twilight == false) {    // start drop bombs only when alive and not in twilight
 	  this->timerb += bombrate + this->type; if (now == true) this->timerb += 2000; 
-	  if( (this->timerb > 1800) && (dropBomb == false) ){	//new bomb only when timer is up and no other bomb was falling
+	  if( (this->timerb > 1500) && (dropBomb == false) ){	//new bomb only when timer is up and no other bomb was falling
 		  this->m_bombx = this->m_x + random(3, ENEMYSX-3);   ;
 		  this->m_bomby = this->m_y+ENEMYSY;    
       switch(this->type) {    
@@ -164,7 +164,7 @@ void Enemy::update(){
         if ( this->m_y < BUNKERLIMIT ) {  this->m_y+=2*BOMBSPEED/3; } // mov down
         if ( this->m_x <= ENEMYSX/2 ) {this->m_x = ENEMYSX/2 ; xdirection = -xdirection;}  
         if ( this->m_x > (Sprite_width()-ENEMYSX) ) {this->m_x=Sprite_width()-ENEMYSX ;xdirection = -xdirection;}
-        this->m_x+= (3*BOMBSPEED*xdirection/2); 
+        this->m_x+= (BOMBSPEED*xdirection); 
       }       // end attacking    
 }
 
