@@ -22,15 +22,15 @@ Connect H7 to HAT expansion board (if you want DEbug over Serial3), add USB-C 2 
 ___
 
 ### Features:
-BLE remote controll - see Andriod based App -> link[https://github.com/javos65/Portenta-C33-Space-Invaders/blob/main/Android%20App/App_android/InvadersX.apk]
+BLE remote control - see Andriod based App -> <br>
+link[https://github.com/javos65/Portenta-C33-Space-Invaders/blob/main/Android%20App/App_android/InvadersX.apk]
 
-Storing HighScores on H7 File system - to be done (!)
 
 ___
 
 ## To do:
 + adding sound / music
-+ adding add HighScore storage
++ adding add HighScore storage - done
 + solve Arduino Video H7 Vsync problem
 + Make version that used the M4 and the M7.
 ___
