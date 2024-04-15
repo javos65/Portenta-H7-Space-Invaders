@@ -5,13 +5,13 @@ ____
 
 ## About
 
-This is a gameplay for Space Invaders with control interface by adding ***BLE remote control***
+This is a gameplay for Space Invaders with control interface by adding ***BLE remote control***<br>
 
 [Original Object based Github page](https://github.com/YXHYX/arduino-space-invaders)
 
-This mod was made by using Portenta H7 and HAT expansion board using HSMI over USB-C
+This mod was made by using Portenta H7 and HAT expansion board using HSMI over USB-C<br>
 
-![logo](/images/GameOver.bmp?raw=true)
+![logo](/images/SpaceInvaders.bmp?raw=true)
 
 ### Wiring
 
