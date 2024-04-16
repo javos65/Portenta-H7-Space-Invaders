@@ -14,10 +14,10 @@
 * Controls bombing 
 * Sense Collision with laser bullets
 ******************************************************************************/
+#include "src/H7Canvas.h"      // Graph functions for H7 USB-C Video
+#include "src/DEBUGF.h"
 #include "Enemy.h"
 #include "Screen.h"
-#include "H7Canvas.h"      // Graph functions for H7 USB-C Video
-#include "DEBUGF.h"
 
 //constructor 
 Enemy::Enemy(int x, int y, int Ti, int ID,int agressive)  {
@@ -137,7 +137,7 @@ void Enemy::update(){
 	
   if ( (this->twilight == true) && (this->dropBomb == false) && (this->exploded==true) ) this->alive = false; // mark finaly DEATH !! : no more rendering, no more collision, no more bombing
   else if ( !this->attack) {// normal behaviour
-    bomb(false,2);
+    bomb(false,1);
     this->timerx++; // timer for X-shift of enemy
     this->timery++; // timer for Y-shift of enemy
     if(this->timerx > ZIGZAGTICK){	
@@ -159,7 +159,7 @@ void Enemy::update(){
             }  
     }           // end if not attacking
   else {        // attacking : bomb always, increase bomb speed
-        bomb(true, 5);
+        bomb(true, 4);
         this->m_prevy= this->m_y;this->m_prevx= this->m_x;;
         if ( this->m_y < BUNKERLIMIT ) {  this->m_y+=2*BOMBSPEED/3; } // mov down
         if ( this->m_x <= ENEMYSX/2 ) {this->m_x = ENEMYSX/2 ; xdirection = -xdirection;}  
@@ -196,7 +196,6 @@ else if(this->alive == true && this->twilight == false) { // only render when al
 				    case 2 : Invaders2_1.xpos= m_x;Invaders2_1.ypos=m_y;Sprite_DrawImage(Invaders2_1);   ;break; 
 				    case 3 : Invaders3_1.xpos= m_x;Invaders3_1.ypos=m_y;Sprite_DrawImage(Invaders3_1);   ;break; 
             case 4 : Invaders4_1.xpos= m_x;Invaders4_1.ypos=m_y;Sprite_DrawImage(Invaders4_1);   ;break; 
-            default :Invaders2_1.xpos= m_x;Invaders2_1.ypos=m_y;Sprite_DrawImage(Invaders2_1);   ;break;   
            }               
         }
 			  if(animationFrame >= 5 && animationFrame < 10){
@@ -205,7 +204,6 @@ else if(this->alive == true && this->twilight == false) { // only render when al
 				    case 2 : Invaders2_2.xpos= m_x;Invaders2_2.ypos=m_y;Sprite_DrawImage(Invaders2_2);   ;break; 
 				    case 3 : Invaders3_2.xpos= m_x;Invaders3_2.ypos=m_y;Sprite_DrawImage(Invaders3_2);   ;break; 
             case 4 : Invaders4_2.xpos= m_x;Invaders4_2.ypos=m_y;Sprite_DrawImage(Invaders4_2);   ;break; 
-            default :Invaders2_2.xpos= m_x;Invaders2_2.ypos=m_y;Sprite_DrawImage(Invaders2_2);   ;break;   
             }  
 			  }
      }
@@ -238,6 +236,12 @@ int Enemy::getBulletY(){
 void Enemy::setAttack(){
 	this->attack = true;
   this->type =4 ; // red attacker
+}
+
+void Enemy::killBomb(){
+dropBomb = false;
+m_bombx=0;
+m_bomby=0;
 }
 
 bool Enemy::getAttack(){

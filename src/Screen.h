@@ -14,7 +14,7 @@
 #ifndef SCREEN_H
 #define SCREEN_H
 #include <Arduino.h>
-#include "H7Canvas.h"
+#include "src/H7Canvas.h"
 
 
 //
@@ -32,17 +32,25 @@
 #define ENEMYSX 36 // must be equal to sprite size !!
 #define ENEMYSY 26 // must be equal to sprite size !!
 
+#define BUNKERSX 18 // must be equal to sprite size !!
+#define BUNKERSY 12 // must be equal to sprite size !!
+
 #define PLAYERSX 36 // must be equal to sprite size !!
 #define PLAYERSY 26 // must be equal to sprite size !!
 
 // enemy 
-#define BOMBSPEED 8
+#define BOMBSPEED 7
 #define ENEMYROWX (ENEMYSX/3 )       // leave one 1/3 size on the side
-#define ENEMYROWY (GAMEY + ENEMYSY/2 )        // leave one 2* size on the side
+#define ENEMYROWY (GAMEY )        // leave one 2* size on the side
 #define BOMBEND    (SCREENSY - 20)         // the bottom
 #define MAXENEMY   (3*SCREENSX)/(ENEMYSX*5)  // Max Enemy per row
 #define MAXROWS     4
 #define BUNKERLIMIT (BOMBEND - ENEMYSY*4)      // the dow limit for invaders
+
+#define MAXBUNKER 2
+#define BUNKERGRIDX 4 // 3x4 bloks
+#define BUNKERGRIDY 3 // 3x4 bloks
+#define BUNKERSTART (BOMBEND - ENEMYSY*2 - ENEMYSY*2/2)
 
 #define ZIGZAGTICK  29    // ticktime tick between zig zag        ! prime
 #define DOWNTICK    351   // tick time tich between lower orbit   ! prime
@@ -50,10 +58,10 @@
 
 // Player
 #define PLAYERSPEED 6
-#define LASERSPEED 12
+#define LASERSPEED  7
 #define SKYLIMIT  GAMEY              // the SKY
-#define PLAYERROWX  (SCREENSX/2)
-#define PLAYERROWY  BOMBEND-PLAYERSY+1
+#define PLAYERROWX  (SCREENSX/2)-(PLAYERSX/2)
+#define PLAYERROWY  (BOMBEND-PLAYERSY+1)
 #define PLAYERENDX1 (GAMEX-1)
 #define PLAYERENDX2 (SCREENSX-PLAYERSX-GAMEX-1)
 
@@ -87,5 +95,13 @@ extern G_image STMicro2;
 extern G_image STMicro;
 extern G_image SpaceInvaders;
 
+extern G_image Bunk1;
+extern G_image Bunk1_x;
+extern G_image Bunk2;
+extern G_image Bunk2_x;
+extern G_image Bunk3;
+extern G_image Bunk3_x;
+extern G_image Bunk4;
+extern G_image Bunk4_x;
 
 #endif  //SCREEN_H

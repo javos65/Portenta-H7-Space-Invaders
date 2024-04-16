@@ -13,7 +13,7 @@
 ******************************************************************************/
 #include "Control.h"
 #include "Screen.h"
-#include "BLEconfig.h"
+#include "src/BLEconfig.h"
 
 Control::Control() 
   {

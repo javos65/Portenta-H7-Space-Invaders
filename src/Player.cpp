@@ -17,7 +17,7 @@
 
 #include "Player.h"
 #include "Screen.h"
-#include "H7Canvas.h"      // Graph functions for H7 USB-C Video
+#include "src/H7Canvas.h"      // Graph functions for H7 USB-C Video
 
 
 Player::Player( Control *C) : C(C) {
@@ -67,25 +67,25 @@ void Player::shoot(){
 	if(this->C->getCS()==1){
 		if(bulletShoot == false){
 			this->bulletx = this->x+PLAYERSX/2;
-			this->bullety = this->y;
+			this->bullety = this->y+PLAYERSY/3;
       exbulletx = bulletx; exbullety=bullety;
 			this->bulletShoot = true;
 		  }
 		else if(bullet2Shoot == false && bullety<(Sprite_height()/2) ){ // second shot ! - yeah - only when first shot is half way
 			this->bullet2x = this->x+PLAYERSX/2;
-			this->bullet2y = this->y;
+			this->bullet2y = this->y+PLAYERSY/3;
       exbullet2x = bullet2x; exbullet2y=bullet2y;
 			this->bullet2Shoot = true;
 		  }      
 	  }
 
 	if(bulletShoot == true){ // first bullet
-		exbulletx = bulletx; exbullety=bullety; bullety-=LASERSPEED;		
+		exbulletx = bulletx; exbullety=bullety; bullety-=LASERSPEED;	if (bullety < BUNKERSTART) bullety-=LASERSPEED/2;	
     if(bullety < SKYLIMIT) bulletShoot = false;
 	}
 
 	if(bullet2Shoot == true){ // secondbullet
-		exbullet2x = bullet2x; exbullet2y=bullet2y; bullet2y -= LASERSPEED;	
+		exbullet2x = bullet2x; exbullet2y=bullet2y; bullet2y -= LASERSPEED;	if (bullet2y < BUNKERSTART) bullet2y-=LASERSPEED;	
     if(bullet2y < SKYLIMIT) bullet2Shoot = false;
 	}
 

@@ -18,6 +18,7 @@
 #include "Control.h"
 #include "Player.h"
 #include "Enemy.h"
+#include "Bunker.h"
 
 
 class Level
@@ -27,6 +28,7 @@ private:
 	
 	int m_difficulty;
 	int enemyAmount;
+  int bunkerAmount;
   int aTimer;
 	
 	bool levelCompleted;
@@ -34,6 +36,7 @@ private:
 	
 	Player* m_player;
 	Enemy* m_enemyArray[MAXENEMY*MAXROWS];
+  Bunker* m_bunkerArray[MAXBUNKER*BUNKERGRIDX*BUNKERGRIDY];
   Control* C;
 	
 	//Getters
@@ -56,6 +59,7 @@ public:
 	void renew(int difficulty, Control *C);
 	void initPlayer( Control *C);
 	void initEnemies(int amount, int Orbit);
+  void initBunkers(int amount);
 	
 	//functions
 	void levelComplete();

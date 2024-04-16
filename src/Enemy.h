@@ -66,6 +66,7 @@ public:
 
  // Setters
   void setAttack();
+  void killBomb();
 
  // Checkers
 	bool collide(int x1, int y1);

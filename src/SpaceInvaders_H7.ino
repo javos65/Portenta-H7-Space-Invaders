@@ -15,12 +15,13 @@
 *
 *
 ******************************************************************************/
-#include "H7Canvas.h"     // Graph functions for H7 USB-C Video
-#include "Control.h"      // key control interface by touch or BLE
-#include "DEBUGF.h"       // Debug messages
+#include "src/H7Canvas.h"     // Graph functions for H7 USB-C Video
+#include "src/StoreData.h"    // Highscore storage on QSPi/ USB drive
+#include "src/DEBUGF.h"       // Debug messages
 #include "Level.h"
 #include "Screen.h"
-#include "StoreData.h"    // Highscore storage on QSPi/ USB drive
+#include "Control.h"      // key control interface by touch or BLE
+
 
 //This Game Engine based on object c++
 #define null 0
